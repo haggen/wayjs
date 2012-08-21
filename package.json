@@ -1,0 +1,14 @@
+{
+  "name": "wayjs",
+  "version": "0.1.0",
+  "homepage": "https://github.com/haggen/wayjs",
+  "description": "light and flexible url routing in javascript",
+  "keywords": ["routing", "router", "url", "path"],
+  "author": "Arthur Corenzan <arthur@corenzan.com>",
+  "repository": { "type": "git", "url": "git://github.com/haggen/wayjs.git" },
+  "main": "./way.js",
+  "engines": { "node": ">= 0.8.3" },
+  "dependencies": {
+    "mocha": "1.3.2"
+  }
+}
