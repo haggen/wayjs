@@ -70,11 +70,11 @@ tests = [
     captures: [{ action: 'run', mod: 'fast' }, { action: 'jump', mod: 'high', target: 'thefence' }],
     mismatch: ['/do', '/do/action', '/do/a/b/c/d']
   }, {
-    pattern: '/api(/:version)/:collection(/:target(/:action))',
-    re: /^\/api(\/([^\/]+?))?\/([^\/]+?)(\/([^\/]+?)(\/([^\/]+?))?)?$/,
-    params: ['version', '_', 'target', '_', 'action'],
+    pattern: '/api(/:version)/:collection(/:target)(/:action)',
+    re: /^\/api(\/([^\/]+?))?\/([^\/]+?)(\/([^\/]+?))?(\/([^\/]+?))?$/,
+    params: ['_', 'version', 'collection', '_', 'target', '_', 'action'],
     action: function() {},
-    matches: ['/api/users', '/api/1/users', '/api/1/users/1', '/api/1/users/1', '/api/1/users/1/destroy'],
+    matches: ['/api/users', '/api/1/users', '/api/1/users/1', '/api/1/users/1/destroy'],
     captures: [{ collection: 'users' }, { version: '1', collection: 'users' }, { version: '1', collection: 'users', target: '1' }, { version: '1', collection: 'users', target: '1', action: 'destroy' }],
     mismatch: ['/api', '/api/a/b/c/d/e']
   }
@@ -82,7 +82,7 @@ tests = [
 
 // Every test case will be tested to see if:
 // - they're properly mapped
-// - their patterns were translate to regex
+// - their patterns were correctly translated to regex
 // - their matches succeed
 // - their mismatches fail
 // - their named parameters are correctly captured
