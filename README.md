@@ -22,7 +22,7 @@ Then match some path against route table:
 
     var action = way.match('/hello');
 
-This will return either the callback or null if no matching route is found.
+This will return either the callback or `undefined` if no matching route is found.
 
     action(); //-> console.log('Hello, world');
 
