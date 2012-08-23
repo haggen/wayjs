@@ -69,6 +69,14 @@ tests = [
     matches: ['/do/run/fast', '/do/jump/high/thefence'],
     captures: [{ action: 'run', mod: 'fast' }, { action: 'jump', mod: 'high', target: 'thefence' }],
     mismatch: ['/do', '/do/action', '/do/a/b/c/d']
+  }, {
+    pattern: '/api(/:version)/:collection(/:target(/:action))',
+    re: /^\/api(\/([^\/]+?))?\/([^\/]+?)(\/([^\/]+?)(\/([^\/]+?))?)?$/,
+    params: ['version', '_', 'target', '_', 'action'],
+    action: function() {},
+    matches: ['/api/users', '/api/1/users', '/api/1/users/1', '/api/1/users/1', '/api/1/users/1/destroy'],
+    captures: [{ collection: 'users' }, { version: '1', collection: 'users' }, { version: '1', collection: 'users', target: '1' }, { version: '1', collection: 'users', target: '1', action: 'destroy' }],
+    mismatch: ['/api', '/api/a/b/c/d/e']
   }
 ];
 
