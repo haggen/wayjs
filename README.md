@@ -6,9 +6,9 @@ Light and flexible URL routing in JavaScript.
 
 You'll need [mocha](https://github.com/visionmedia/mocha) to run the tests.
 
-Inside WayJS's directory, run `npm install -g`. The `-g` flag tells the NPM to install the dependencies globally so mocha's binaries goes in `/usr/bin` directory.
+Inside WayJS's directory, run `$ npm install -g`. The `-g` flag tells the NPM to install the dependencies globally so mocha's binaries goes in your `/usr/bin` directory.
 
-Then run `mocha`.
+Then run `$ mocha`.
 
 ## Usage:
 
