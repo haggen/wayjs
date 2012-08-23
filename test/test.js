@@ -3,48 +3,85 @@ var tests, assert, way;
 assert = require('assert');
 way = require('../way.js');
 
+// Add new tests cases inside the array below.
+// Test cases consist of:
+// - a route pattern
+// - a successfully built regex
+// - optional groups (underscores) and named parameters
+// - successful matches
+// - captures of each match
+// - mismatches
+
 tests = [
   {
     pattern: '/hello',
     re: /^\/hello$/,
     params: [],
-    action: function() {}
+    action: function() {},
+    matches: ['/hello'],
+    captures: [],
+    mismatch: ['/bye']
   }, {
     pattern: '/hello/:name',
     re: /^\/hello\/([^\/]+?)$/,
     params: ['name'],
-    action: function() { /*.*/ }
+    action: function() {},
+    matches: ['/hello/world'],
+    captures: [{ name: 'world' }],
+    mismatch: ['/hello', '/hello/you/me']
   }, {
     pattern: '/about(/me)',
     re: /^\/about(\/me)?$/,
     params: ['_'],
-    action: function() {}
+    action: function() {},
+    matches: ['/about', '/about/me'],
+    captures: [],
+    mismatch: ['/not/about', '/about/you', '/about/me/more']
   }, {
     pattern: '/say/*/quickly',
     re: /^\/say\/(.+?)\/quickly$/,
     params: ['splat'],
-    action: function() {}
+    action: function() {},
+    matches: ['/say/something/quickly', '/say/a/b/c/quickly'],
+    captures: [{ splat: 'something' }, { splat: 'a/b/c' }],
+    mismatch: ['/say', '/say/quickly']
   }, {
     pattern: '/sort(/:order)',
     re: /^\/sort(\/([^\/]+?))?$/,
     params: ['_', 'order'],
-    action: function() {}
+    action: function() {},
+    matches: ['/sort', '/sort/desc', '/sort/asc'],
+    captures: [{}, { order: 'desc' }, { order: 'asc' }],
+    mismatch: ['/sort/desc/more', '/sorting']
   }, {
-    pattern: '/how(/are)(/you)',
-    re: /^\/how(\/are)?(\/you)?$/,
+    pattern: '/have(/not)(/you)',
+    re: /^\/have(\/not)?(\/you)?$/,
     params: ['_', '_'],
-    action: function() {}
+    action: function() {},
+    matches: ['/have', '/have/you', '/have/not/you'],
+    captures: [],
+    mismatch: ['/havent', '/have/you/not']
   }, {
     pattern: '/do/:action/:mod(/:target)',
     re: /^\/do\/([^\/]+?)\/([^\/]+?)(\/([^\/]+?))?$/,
     params: ['action', 'mod', '_', 'target'],
-    action: function() {}
+    action: function() {},
+    matches: ['/do/run/fast', '/do/jump/high/thefence'],
+    captures: [{ action: 'run', mod: 'fast' }, { action: 'jump', mod: 'high', target: 'thefence' }],
+    mismatch: ['/do', '/do/action', '/do/a/b/c/d']
   }
 ];
 
+// Every test case will be tested to see if:
+// - they're properly mapped
+// - their patterns were translate to regex
+// - their matches succeed
+// - their mismatches fail
+// - their named parameters are correctly captured
+
 describe('Way', function() {
   describe('#map', function() {
-    it('should account 4 new routes', function() {
+    it('should account new routes', function() {
       var i;
 
       for(i = 0; i < tests.length; i++) {
@@ -54,8 +91,8 @@ describe('Way', function() {
     });
   });
 
-  describe('new routes', function() {
-    it('pattern should have been translated', function() {
+  describe('#translate', function() {
+    it('should have built a regex for each route', function() {
       var i;
 
       for(i = 0; i < tests.length; i++) {
@@ -64,7 +101,7 @@ describe('Way', function() {
       }
     });
 
-    it('named parameters and optional groups should have been parsed', function() {
+    it('should have saved named parameters and optional groups', function() {
       var i;
 
       for(i = 0; i < tests.length; i++) {
@@ -75,69 +112,43 @@ describe('Way', function() {
   });
 
   describe('#match', function() {
-    it('should succeed against /hello', function() {
-      var match = way.match('/hello');
-      assert.equal(match, tests[0].action);
+    it('should succeed against matches of each test case', function() {
+      var i, j;
+
+      for(i = 0; i < tests.length; i++) {
+        for(j = 0; j < tests[i].matches.length; j++) {
+          assert.equal(way.match(tests[i].matches[j]), tests[i].action);
+        }
+      }
     });
 
-    it('should fail against /404', function() {
-      var match = way.match('/404');
-      assert.equal(match, null)
+    it('should fail against mismatches of each test case', function() {
+      var i, j;
+
+      for(i = 0; i < tests.length; i++) {
+        for(j = 0; j < tests[i].mismatch.length; j++) {
+          assert.notEqual(way.match(tests[i].mismatch[j]), tests[i].action);
+        }
+      }
     });
 
-    it('should succeed against /hello/bob and grab "name" parameter', function() {
-      assert.equal(way.match('/hello/bob'), tests[1].action);
-      assert(way.params.hasOwnProperty('name'));
-      assert.equal(way.params.name, 'bob');
-    });
+    it('should capture named parameters as defined by each test case', function() {
+      var i, j, k;
 
-    it('should succeed against /about and /about/me and return same action', function() {
-      assert.equal(way.match('/about'), tests[2].action);
-      assert.equal(way.match('/about/me'), tests[2].action);
-    });
+      for(i = 0; i < tests.length; i++) {
+        for(j = 0; j < tests[i].matches.length; j++) {
+          way.match(tests[i].matches[j]);
 
-    it('should succeed against /say/some/thing/quickly and grab "splat" parameter', function() {
-      assert.equal(way.match('/say/some/thing/quickly'), tests[3].action);
-      assert(way.params.hasOwnProperty('splat'));
-      assert.equal(way.params.splat, 'some/thing');
-    });
-
-    it('should succeed against /sort and grab "order" parameter as undefined', function() {
-      assert.equal(way.match('/sort'), tests[4].action);
-      assert(way.params.hasOwnProperty('order'));
-      assert.equal(way.params.order, undefined);
-    });
-
-    it('should succeed against /sort/desc and grab "order" parameter as "desc"', function() {
-      assert.equal(way.match('/sort/desc'), tests[4].action);
-      assert(way.params.hasOwnProperty('order'));
-      assert.equal(way.params.order, 'desc');
-    });
-
-    it('should succeed against /how, /how/are and /how/are/you', function() {
-      assert.equal(way.match('/how'), tests[5].action);
-      assert.equal(way.match('/how/are'), tests[5].action);
-      assert.equal(way.match('/how/are/you'), tests[5].action);
-    });
-
-    it('should succeed against /do/jump/high and grap "action" as "jump" and "mod" as "high"', function() {
-      assert.equal(way.match('/do/jump/high'), tests[6].action);
-      assert(way.params.hasOwnProperty('action'));
-      assert.equal(way.params.action, 'jump');
-      assert(way.params.hasOwnProperty('mod'));
-      assert.equal(way.params.mod, 'high');
-      assert(way.params.hasOwnProperty('target'));
-      assert.equal(way.params.target, undefined);
-    });
-
-    it('should succeed against /do/run/fast/home and grap "action" as "run", "mod" as "fast" and "target" as "home"', function() {
-      assert.equal(way.match('/do/run/fast/home'), tests[6].action);
-      assert(way.params.hasOwnProperty('action'));
-      assert.equal(way.params.action, 'run');
-      assert(way.params.hasOwnProperty('mod'));
-      assert.equal(way.params.mod, 'fast');
-      assert(way.params.hasOwnProperty('target'));
-      assert.equal(way.params.target, "home");
+          if(j in tests[i].captures) {
+            for(k in tests[i].captures[j]) {
+              if(tests[i].captures[j].hasOwnProperty(k)) {
+                assert(way.params.hasOwnProperty(k));
+                assert.equal(way.params[k], tests[i].captures[j][k]);
+              }
+            }
+          }
+        }
+      }
     });
   });
 });
