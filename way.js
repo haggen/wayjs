@@ -1,5 +1,5 @@
 /*
- * WayJS v0.2.0 2012-08-23 22:44:15 -0300
+ * WayJS v0.2.0 2012-08-24 18:47:20 -0300
  * by Arthur Corenzan <arthur@corenzan.com>
  * licensed under http://creativecommons.org/licenses/by/3.0
  * more on http://haggen.github.com/wayjs
@@ -41,16 +41,16 @@
       re = re.replace(/:(\w[\w\d]*)|\(/g, function(m, n) {
         // console.log(m, n, m === '(' ? '_' : n, m === '(' ? '(' : '([^\\/]+?)');
         route.params.push(m === '(' ? '_' : n);
-        return m === '(' ? '(' : '([^\\/]+)';
+        return m === '(' ? '(' : '([^\\/]+?)';
       });
 
       // Translate splats
       re = re.replace(/\*/g, function() {
         route.params.push('splat');
-        return '(.+)';
+        return '(.+?)';
       });
 
-      return new RegExp('^' + re);
+      return new RegExp('^' + re + '$');
     },
 
     match: function(path) {
