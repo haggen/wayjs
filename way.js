@@ -41,13 +41,13 @@
       re = re.replace(/:(\w[\w\d]*)|\(/g, function(m, n) {
         // console.log(m, n, m === '(' ? '_' : n, m === '(' ? '(' : '([^\\/]+?)');
         route.params.push(m === '(' ? '_' : n);
-        return m === '(' ? '(' : '([^\\/]+?)';
+        return m === '(' ? '(' : '([^\\/]+)';
       });
 
       // Translate splats
       re = re.replace(/\*/g, function() {
         route.params.push('splat');
-        return '(.+?)';
+        return '(.+)';
       });
 
       return new RegExp('^' + re);
