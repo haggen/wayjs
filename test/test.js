@@ -6,42 +6,42 @@ way = require('../way.js');
 routes = [
   {
     pattern: '/a',
-    re: /^\/a/,
+    re: /^\/a$/,
     params: [],
     action: function() {}
   }, {
     pattern: '/b/:c',
-    re: /^\/b\/([^\/]+?)/,
+    re: /^\/b\/([^\/]+?)$/,
     params: ['c'],
     action: function() {}
   }, {
     pattern: '/b/d',
-    re: /^\/b\/d/,
+    re: /^\/b\/d$/,
     params: [],
     action: function() {}
   }, {
     pattern: '/c(/d)',
-    re: /^\/c(\/d)?/,
+    re: /^\/c(\/d)?$/,
     params: ['_'],
     action: function() {}
   }, {
     pattern: '/d/*/e',
-    re: /^\/d\/(.+?)\/e/,
+    re: /^\/d\/(.+?)\/e$/,
     params: ['splat'],
     action: function() {}
   }, {
     pattern: '/e(/f)(/g)',
-    re: /^\/e(\/f)?(\/g)?/,
+    re: /^\/e(\/f)?(\/g)?$/,
     params: ['_', '_'],
     action: function() {}
   }, {
     pattern: '/f/:g(/:h)',
-    re: /^\/f\/([^\/]+?)(\/([^\/]+?))?/,
+    re: /^\/f\/([^\/]+?)(\/([^\/]+?))?$/,
     params: ['g', '_', 'h'],
     action: function() {}
   }, {
     pattern: '/g(/:h)/:i/*',
-    re: /^\/g(\/([^\/]+?))?\/([^\/]+?)\/(.+?)/,
+    re: /^\/g(\/([^\/]+?))?\/([^\/]+?)\/(.+?)$/,
     params: ['_', 'h', 'i', 'splat'],
     action: function() {}
   }
