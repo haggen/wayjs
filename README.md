@@ -14,21 +14,44 @@ Then run `$ mocha`.
 
 Register a new route:
 
-    way.map('/hello', function() {
+    way.map('/hello/world', function() {
       console.log('Hello, world');
     });
 
 Then match some path against route table:
 
-    var action = way.match('/hello');
+    var match = way.match('/hello/world');
 
-This will return either the callback or `undefined` if no matching route is found.
+This will return a collection of matches or `undefined` if no match is found.
 
-    action(); //-> console.log('Hello, world');
+    match[0].action(); //-> console.log('Hello, world')
+    match[0].params;   //-> {}
 
-Way can be used within the browser or with Node.
+Each `match` object has an `action` function and a `params` object.
 
-Also route patterns accepts some special syntax.
+So let's say, after the snippet above you write:
+
+    way.map('/hello/:name', function(params) {
+      console.log('Hello, mister ' + params.name);
+    });
+
+Then, match the same path again:
+
+    var matches = way.match('/hello/world');
+
+Now we got:
+
+    matches[0].action(); //-> console.log('Hello, world')
+    matches[0].params;   //-> {}
+
+And:
+
+    matches[1].action(); //-> console.log('Hello, mister world')
+    matches[1].params;   //-> { name: 'world' }
+
+This way you have control over the flow. Let's you need to "filter" some route, you just register it twice, but in the first you can return a special value that you'll check for before execution the second match. I told you it was flexible! ;)
+
+WayJS works with both browser and Node.
 
 ## Pattern syntax:
 
@@ -56,14 +79,4 @@ Capture everything, including slashes and save in `way.params.splat`. No more th
       console.log('Goto: ', way.params.splat);
     });
 
-
 All the special syntax can be combined to create powerful routes.
-
-Please note that routes are matched in the same order they're mapped.
-
-## Roadmap:
-
-1. Hooks
-2. <del>Better tests</del>
-3. More special syntax
-4. Bypassing routes
