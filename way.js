@@ -1,5 +1,5 @@
 /*
- * WayJS v0.1.0 2012-08-21 10:58:17 -0300
+ * WayJS v0.2.0 2012-08-23 22:44:15 -0300
  * by Arthur Corenzan <arthur@corenzan.com>
  * licensed under http://creativecommons.org/licenses/by/3.0
  * more on http://haggen.github.com/wayjs
@@ -12,8 +12,6 @@
 
   Way = function() {
     this.routes = [];
-    this.hooks = {};
-    this.params = {};
   };
 
   Way.prototype = {
@@ -52,27 +50,29 @@
         return '(.+?)';
       });
 
-      return new RegExp('^' + re + '$');
+      return new RegExp('^' + re);
     },
 
     match: function(path) {
-      var way, route, match, i, j;
+      var route, match, matches, m, i, j;
 
-      way = this;
-      way.params = [];
+      matches = [];
 
-      for(i = 0; i < way.routes.length; i++) {
-        route = way.routes[i];
-        match = path.match(route.pattern);
+      for(i = 0; i < this.routes.length; i++) {
+        route = this.routes[i];
+        match = { action: route.action, params: [] };
+        m = path.match(route.pattern);
 
-        if(match) {
-          for(j = 1; j < match.length; j++) {
-            way.params[route.params[j - 1]] = match[j];
+        if(m) {
+          for(j = 1; j < m.length; j++) {
+            match.params[route.params[j - 1]] = m[j];
           }
 
-          return route.action;
+          matches.push(match);
         }
       }
+
+      return matches;
     }
   };
 
