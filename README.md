@@ -6,58 +6,56 @@ Light and flexible URL routing in JavaScript.
 
 You'll need [mocha](https://github.com/visionmedia/mocha) to run the tests.
 
-Inside WayJS's directory, run `$ npm install -g`. The `-g` flag tells the NPM to install the dependencies globally so mocha's binaries goes in your `/usr/bin` directory.
+Run `$ npm install -g mocha`. The `-g` flag tells the NPM to install the dependencies globally so mocha's binaries goes in your `/usr/bin` directory.
 
 Then run `$ mocha`.
+
+## Minify:
+
+You'll need [uglify-js](https://github.com/mishoo/UglifyJS) to minify the script.
+
+Install it with `$ npm install -g uglify-js`, then run `$ make`.
 
 ## Usage:
 
 Register a new route:
 
-    way.map('/hello/world', function() {
-      console.log('Hello, world');
-    });
+```javascript
+way.map('/hello/world', function() {
+  console.log('Hello, world');
+});
+```
 
 Then match some path against route table:
 
-    var match = way.match('/hello/world');
+```javascript
+var match = way.match('/hello/world');
+```
 
-This will return a collection of matches or `undefined` if no match is found.
+This will return the first route to match or `undefined` if none.
 
-    match[0].action(); //-> console.log('Hello, world')
-    match[0].params;   //-> {}
+The route object has the collection of actions and eventually parsed parameters.
 
-Each `match` object has an `action` function and a `params` object.
+```javascript
+match.actions; //-> [function() { console.log('Hello, world'); }]
+match.params;  //-> {}
+```
 
-So let's say, after the snippet above you write:
+You can provide multiple actions.
 
-    way.map('/hello/:name', function(params) {
-      console.log('Hello, mister ' + params.name);
-    });
+```javascript
+way.map('/hello/world', function() {/* 1 */}, function() {/* 2 */});
+```
 
-Then, match the same path again:
+That way you have control over the flow and do things like if the first action do not return true, it won't call the next one, or pass the returning value from the current action to the next one, or anything else that suits you. I told you it was flexible. :)
 
-    var matches = way.match('/hello/world');
-
-Now we got:
-
-    matches[0].action(); //-> console.log('Hello, world')
-    matches[0].params;   //-> {}
-
-And:
-
-    matches[1].action(); //-> console.log('Hello, mister world')
-    matches[1].params;   //-> { name: 'world' }
-
-This way you have control over the flow. Let's you need to "filter" some route, you just register it twice, but in the first you can return a special value that you'll check for before execution the second match. I told you it was flexible! ;)
-
-WayJS works with both browser and Node.
+WayJS works in both browser and Node.
 
 ## Pattern syntax:
 
 ### Named parameters
 
-Capture anything except forward slashes and save in `way.params`.
+Capture anything except forward slashes and save in `way.params` with given name.
 
     way.map('/log/:message', function() {
       console.log(way.params.message);
@@ -65,7 +63,7 @@ Capture anything except forward slashes and save in `way.params`.
 
 ### Optional groups
 
-Allow flexible routes.
+Matches with or without the snippet inside the parenthesis.
 
     way.map('(/good)/bye', function() {
       console.log('Farewell!!');
@@ -73,10 +71,31 @@ Allow flexible routes.
 
 ### Splats
 
-Capture everything, including slashes and save in `way.params.splat`. No more than 1 splat per route.
+Capture everything, including slashes and save in `way.params.splat`. You can include multiple splats, returning an array.
 
     way.map('/goto/*', function() {
-      console.log('Goto: ', way.params.splat);
+      console.log('Goto: ', way.params.splat[0]);
     });
 
-All the special syntax can be combined to create powerful routes.
+All the special syntaxes above can be combined to create powerful routing patterns.
+
+## Changelog:
+
+### v0.3.2 2012-09-05
+
+- Changed to multiple actions instead of allowing multiple matches
+- Accepts multiple splats
+- Tests updated accordingly
+
+### v0.2.1 2012-08-24
+
+- Changed patterns regex to do exact matches
+
+### v0.2.0 2012-08-23
+
+- Accepts multiple matches, returning a collection of them
+- Fixed bug with parameter values being sliced
+
+### v0.1.0 2012-08-21
+
+- First version
