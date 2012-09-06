@@ -8,65 +8,76 @@ routes = [
     pattern: '/a',
     re: /^\/a$/,
     params: [],
-    action: function() {}
+    actions: [function() {}]
   }, {
     pattern: '/b/:c',
     re: /^\/b\/([^\/]+?)$/,
     params: ['c'],
-    action: function() {}
+    actions: [function() {}]
   }, {
     pattern: '/b/d',
     re: /^\/b\/d$/,
     params: [],
-    action: function() {}
+    actions: [function() {}]
   }, {
     pattern: '/c(/d)',
     re: /^\/c(\/d)?$/,
     params: ['_'],
-    action: function() {}
+    actions: [function() {}]
   }, {
-    pattern: '/d/*/e',
-    re: /^\/d\/(.+?)\/e$/,
-    params: ['splat'],
-    action: function() {}
+    pattern: '/d/*/e/*',
+    re: /^\/d\/(.+?)\/e\/(.+?)$/,
+    params: ['splat', 'splat'],
+    actions: [function() {}, function() {}]
   }, {
     pattern: '/e(/f)(/g)',
     re: /^\/e(\/f)?(\/g)?$/,
     params: ['_', '_'],
-    action: function() {}
+    actions: [function() {}]
   }, {
     pattern: '/f/:g(/:h)',
     re: /^\/f\/([^\/]+?)(\/([^\/]+?))?$/,
     params: ['g', '_', 'h'],
-    action: function() {}
+    actions: [function() {}]
   }, {
     pattern: '/g(/:h)/:i/*',
     re: /^\/g(\/([^\/]+?))?\/([^\/]+?)\/(.+?)$/,
     params: ['_', 'h', 'i', 'splat'],
-    action: function() {}
+    actions: [function() {}]
   }
 ];
 
 tests = [
   {
     path: '/a',
-    matches: [
-      {
-        action: routes[0].action,
-        params: {}
-      }
-    ]
+    match: {
+      actions: routes[0].actions,
+      params: {}
+    }
   }, {
     path: '/b/d',
-    matches: [
-      {
-        action: routes[1].action,
-        params: { c: 'd' }
-      }, {
-        action: routes[2].action,
-        params: {}
-      }
-    ]
+    match: {
+      actions: routes[1].actions,
+      params: { c: 'd' }
+    }
+  }, {
+    path: '/c',
+    match: {
+      actions: routes[3].actions,
+      params: {}
+    }
+  }, {
+    path: '/c/d',
+    match: {
+      actions: routes[3].actions,
+      params: {}
+    }
+  }, {
+    path: '/d/yadda/yadda/e/nothing',
+    match: {
+      actions: routes[4].actions,
+      params: { splat: ['yadda/yadda', 'nothing'] }
+    }
   }
 ];
 
@@ -76,7 +87,7 @@ describe('Way', function() {
       var i;
 
       for(i = 0; i < routes.length; i++) {
-        way.map(routes[i].pattern, routes[i].action);
+        way.map.apply(way, [routes[i].pattern].concat(routes[i].actions));
         assert.equal(way.routes.length, i + 1);
       }
     });
@@ -87,8 +98,8 @@ describe('Way', function() {
       var i;
 
       for(i = 0; i < way.routes.length; i++) {
-        assert(way.routes[i].hasOwnProperty('pattern'));
-        assert.equal(String(way.routes[i].pattern), String(routes[i].re));
+        assert(way.routes[i].hasOwnProperty('pattern'), 'pattern translated');
+        assert.equal(String(way.routes[i].pattern), String(routes[i].re), 'matching patterns');
       }
     });
 
@@ -104,18 +115,21 @@ describe('Way', function() {
 
   describe('#match', function() {
     it('should return the matches described in each test', function() {
-      var m, i, j, k;
+      var m, i, j;
 
       for(i = 0; i < tests.length; i++) {
         m = way.match(tests[i].path);
 
-        for(j = 0; j < tests[i].matches.length; j++) {
-          assert.equal(m[j].action, tests[i].matches[j].action);
+        assert.equal(m.actions[0], tests[i].match.actions[0]);
 
-          for(k in tests[i].matches[j].params) {
-            if(tests[i].matches[j].params.hasOwnProperty(k)) {
-              assert(k in m[j].params);
-              assert.equal(m[j].params[k], tests[i].matches[j].params[k]);
+        for(j in tests[i].match.params) {
+          if(tests[i].match.params.hasOwnProperty(j)) {
+            if(j === 'splat') {
+              assert(m.params[j] instanceof Array);
+              assert.equal(m.params[j].length, tests[i].match.params[j].length);
+              assert.equal(String(m.params[j]), String(tests[i].match.params[j]));
+            } else {
+              assert.equal(m.params[j], tests[i].match.params[j]);
             }
           }
         }
