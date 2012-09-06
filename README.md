@@ -81,6 +81,10 @@ All the special syntaxes above can be combined to create powerful routing patter
 
 ## Changelog:
 
+### v0.3.3 2012-09-05
+
+- Added support for [requirejs](http://requirejs.org/)
+
 ### v0.3.2 2012-09-05
 
 - Changed to multiple actions instead of allowing multiple matches
