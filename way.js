@@ -1,5 +1,5 @@
 /*
- * WayJS v0.2.0 2012-08-24 18:47:20 -0300
+ * WayJS v0.3.2 2012-09-05 19:35:01 -0300
  * by Arthur Corenzan <arthur@corenzan.com>
  * licensed under http://creativecommons.org/licenses/by/3.0
  * more on http://haggen.github.com/wayjs
@@ -16,12 +16,12 @@
 
   Way.prototype = {
 
-    map: function(pattern, action) {
+    map: function() {
       var route = {};
 
       route.params = [];
-      route.action = action;
-      route.pattern = this.translate(pattern, route);
+      route.pattern = this.translate([].shift.apply(arguments), route);
+      route.actions = [].slice.apply(arguments);
 
       this.routes.push(route);
     },
@@ -39,7 +39,6 @@
 
       // Translate named parameters
       re = re.replace(/:(\w[\w\d]*)|\(/g, function(m, n) {
-        // console.log(m, n, m === '(' ? '_' : n, m === '(' ? '(' : '([^\\/]+?)');
         route.params.push(m === '(' ? '_' : n);
         return m === '(' ? '(' : '([^\\/]+?)';
       });
@@ -54,32 +53,38 @@
     },
 
     match: function(path) {
-      var route, match, matches, m, i, j;
-
-      matches = [];
+      var route, match, param, m, i, j;
 
       for(i = 0; i < this.routes.length; i++) {
         route = this.routes[i];
-        match = { action: route.action, params: [] };
+        match = { actions: route.actions, params: {} };
         m = path.match(route.pattern);
 
         if(m) {
           for(j = 1; j < m.length; j++) {
-            match.params[route.params[j - 1]] = m[j];
+            param = route.params[j - 1];
+
+            if(param === 'splat') {
+              if('splat' in match.params) {
+                match.params['splat'].push(m[j]);
+              } else {
+                match.params['splat'] = [m[j]];
+              }
+            } else {
+              match.params[param] = m[j];
+            }
           }
 
-          matches.push(match);
+          return match;
         }
       }
-
-      return matches;
     }
   };
 
-  if(typeof window === 'undefined') {
-    module.exports = new Way();
-  } else {
+  if(typeof window === 'object') {
     window.way = new Way();
+  } else if(typeof module === 'object' && 'exports' in module) {
+    module.exports = new Way();
   }
 
 })();
