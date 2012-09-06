@@ -1,5 +1,5 @@
 /*
- * WayJS v0.3.3 2012-09-05 23:14:53 -0300
+ * WayJS v0.3.4 2012-09-06 13:05:00 -0300
  * by Arthur Corenzan <arthur@corenzan.com>
  * licensed under http://creativecommons.org/licenses/by/3.0
  * more on http://haggen.github.com/wayjs
@@ -17,11 +17,14 @@
   Way.prototype = {
 
     map: function() {
-      var route = {};
+      var args, route;
+
+      args = [].slice.apply(arguments);
+      route = {};
 
       route.params = [];
-      route.pattern = this.translate([].shift.apply(arguments), route);
-      route.actions = [].slice.apply(arguments);
+      route.pattern = this.translate(args.shift(), route);
+      route.actions = args;
 
       this.routes.push(route);
     },
