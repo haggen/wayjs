@@ -1,2 +1,3 @@
 all: way.js
-	@curl -s -d output_info=compiled_code --data-urlencode "js_code@way.js" http://closure-compiler.appspot.com/compile > way.min.js
+	@head -n 6 way.js > way.min.js
+	@uglifyjs --no-copyright way.js >> way.min.js
