@@ -81,6 +81,10 @@ All the special syntaxes above can be combined to create powerful routing patter
 
 ## Changelog:
 
+### v0.3.4 2012-09-06
+
+- Fixed bug when casting #map arguments as array
+
 ### v0.3.3 2012-09-05
 
 - Added support for [requirejs](http://requirejs.org/)
