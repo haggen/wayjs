@@ -1,5 +1,5 @@
 /*
- * WayJS v0.3.2 2012-09-05 19:35:01 -0300
+ * WayJS v0.3.3 2012-09-05 23:14:53 -0300
  * by Arthur Corenzan <arthur@corenzan.com>
  * licensed under http://creativecommons.org/licenses/by/3.0
  * more on http://haggen.github.com/wayjs
@@ -82,7 +82,11 @@
   };
 
   if(typeof window === 'object') {
-    window.way = new Way();
+    if(typeof window.define === 'function' && 'amd' in window.define) {
+      window.define('way', function() { return new Way(); });
+    } else {
+      window.way = new Way();
+    }
   } else if(typeof module === 'object' && 'exports' in module) {
     module.exports = new Way();
   }
