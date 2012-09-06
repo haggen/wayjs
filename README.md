@@ -6,7 +6,7 @@ Light and flexible URL routing in JavaScript.
 
 You'll need [mocha](https://github.com/visionmedia/mocha) to run the tests.
 
-Run `$ npm install -g mocha`. The `-g` flag tells the NPM to install the dependencies globally so mocha's binaries goes in your `/usr/bin` directory.
+Run `$ npm install -g mocha`. The `-g` flag tells the NPM to install the module globally so mocha's binaries goes in your `/usr/bin` directory.
 
 Then run `$ mocha`.
 
