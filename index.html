@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>WayJS by haggen</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">WayJS</h1>
+        <p class="header">Lightweight and flexible URL pattern matching in JavaScript.</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/haggen/wayjs/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/haggen/wayjs/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/haggen/wayjs">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/haggen">haggen</a></p>
+
+
+      </header>
+      <section>
+        <h1>WayJS</h1>
+
+<p>Lightweight and flexible URL pattern matching in JavaScript.</p>
+
+<h2>Tests:</h2>
+
+<p>You'll need <a href="https://github.com/visionmedia/mocha">mocha</a> to run the tests.</p>
+
+<p>Run <code>$ npm install -g mocha</code>. The <code>-g</code> flag tells the NPM to install the module globally so mocha's binaries goes in your <code>/usr/bin</code> directory.</p>
+
+<p>Then run <code>$ mocha</code>.</p>
+
+<h2>Minify:</h2>
+
+<p>You'll need <a href="https://github.com/mishoo/UglifyJS">uglify-js</a> to minify the script.</p>
+
+<p>Install it with <code>$ npm install -g uglify-js</code>, then run <code>$ make</code>.</p>
+
+<h2>Usage:</h2>
+
+<p>Register a new route:</p>
+
+<div class="highlight"><pre><span class="nx">way</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="s1">'/hello/world'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Hello, world'</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>Then match some path against route table:</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="nx">way</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="s1">'/hello/world'</span><span class="p">);</span>
+</pre></div>
+
+<p>This will return the first route to match or <code>undefined</code> if none.</p>
+
+<p>The route object has the collection of actions and eventually parsed parameters.</p>
+
+<div class="highlight"><pre><span class="nx">match</span><span class="p">.</span><span class="nx">actions</span><span class="p">;</span> <span class="c1">//-&gt; [function() { console.log('Hello, world'); }]</span>
+<span class="nx">match</span><span class="p">.</span><span class="nx">params</span><span class="p">;</span>  <span class="c1">//-&gt; {}</span>
+</pre></div>
+
+<p>You can provide multiple actions.</p>
+
+<div class="highlight"><pre><span class="nx">way</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="s1">'/hello/world'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="cm">/* 1 */</span><span class="p">},</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="cm">/* 2 */</span><span class="p">});</span>
+</pre></div>
+
+<p>That way you have control over the flow and do things like if the first action do not return true, it won't call the next one, or pass the returning value from the current action to the next one, or anything else that suits you. I told you it was flexible. :)</p>
+
+<p>WayJS works in both browser and Node.</p>
+
+<h2>Pattern syntax:</h2>
+
+<h3>Named parameters</h3>
+
+<p>Capture anything except forward slashes and save in <code>way.params</code> with given name.</p>
+
+<pre><code>way.map('/log/:message', function() {
+  console.log(way.params.message);
+});
+</code></pre>
+
+<h3>Optional groups</h3>
+
+<p>Matches with or without the snippet inside the parenthesis.</p>
+
+<pre><code>way.map('(/good)/bye', function() {
+  console.log('Farewell!!');
+})
+</code></pre>
+
+<h3>Splats</h3>
+
+<p>Capture everything, including slashes and save in <code>way.params.splat</code>. You can include multiple splats, returning an array.</p>
+
+<pre><code>way.map('/goto/*', function() {
+  console.log('Goto: ', way.params.splat[0]);
+});
+</code></pre>
+
+<p>All the special syntaxes above can be combined to create powerful routing patterns.</p>
+
+<h2>Changelog:</h2>
+
+<h3>v0.3.4 2012-09-06</h3>
+
+<ul>
+<li>Fixed bug when casting #map arguments as array</li>
+</ul><h3>v0.3.3 2012-09-05</h3>
+
+<ul>
+<li>Added support for <a href="http://requirejs.org/">requirejs</a>
+</li>
+</ul><h3>v0.3.2 2012-09-05</h3>
+
+<ul>
+<li>Changed to multiple actions instead of allowing multiple matches</li>
+<li>Accepts multiple splats</li>
+<li>Tests updated accordingly</li>
+</ul><h3>v0.2.1 2012-08-24</h3>
+
+<ul>
+<li>Changed patterns regex to do exact matches</li>
+</ul><h3>v0.2.0 2012-08-23</h3>
+
+<ul>
+<li>Accepts multiple matches, returning a collection of them</li>
+<li>Fixed bug with parameter values being sliced</li>
+</ul><h3>v0.1.0 2012-08-21</h3>
+
+<ul>
+<li>First version</li>
+</ul>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-38812126-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
