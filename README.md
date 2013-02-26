@@ -1,6 +1,6 @@
 # WayJS
 
-Light and flexible URL routing in JavaScript.
+Lightweight and flexible URL pattern matching in JavaScript.
 
 ## Tests:
 
