@@ -34,23 +34,45 @@
 
 <p>Lightweight and flexible URL pattern matching in JavaScript.</p>
 
-<h2>Tests:</h2>
+<h2>Test:</h2>
 
 <p>You'll need <a href="https://github.com/visionmedia/mocha">mocha</a> to run the tests.</p>
 
-<p>Run <code>$ npm install -g mocha</code>. The <code>-g</code> flag tells the NPM to install the module globally so mocha's binaries goes in your <code>/usr/bin</code> directory.</p>
+<p>If you already have <code>mocha</code> installed globally you can simply run <code>$ mocha</code>.</p>
 
-<p>Then run <code>$ mocha</code>.</p>
+<p>If not, you can install the dependencies with <code>$ npm install</code> and then run <code>$ npm test</code>. No need to install <code>mocha</code> with <code>-g</code> or anything.</p>
 
 <h2>Minify:</h2>
 
 <p>You'll need <a href="https://github.com/mishoo/UglifyJS">uglify-js</a> to minify the script.</p>
 
-<p>Install it with <code>$ npm install -g uglify-js</code>, then run <code>$ make</code>.</p>
+<p>Install the dependencies with <code>$ npm install</code> and then run <code>$ npm run minify</code>.</p>
 
 <h2>Usage:</h2>
 
-<p>Register a new route:</p>
+<p>First thing is to create a new instance.</p>
+
+<p>In browser:</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">way</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Way</span><span class="p">();</span>
+</pre></div>
+
+<p>With AMD/require.js:</p>
+
+<div class="highlight"><pre><span class="nx">require</span><span class="p">(</span><span class="s1">'way'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">Way</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">way</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Way</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>Or with Node:</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">Way</span><span class="p">,</span> <span class="nx">way</span><span class="p">;</span>
+
+<span class="nx">Way</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'way'</span><span class="p">);</span>
+<span class="nx">way</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Way</span><span class="p">();</span>
+</pre></div>
+
+<p>Now, to register a new route:</p>
 
 <div class="highlight"><pre><span class="nx">way</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="s1">'/hello/world'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Hello, world'</span><span class="p">);</span>
@@ -62,31 +84,39 @@
 <div class="highlight"><pre><span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="nx">way</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="s1">'/hello/world'</span><span class="p">);</span>
 </pre></div>
 
-<p>This will return the first route to match or <code>undefined</code> if none.</p>
-
-<p>The route object has the collection of actions and eventually parsed parameters.</p>
+<p>This will return an <code>object</code> or <code>undefined</code> if no route matches. This object has the collection of actions and parameters.</p>
 
 <div class="highlight"><pre><span class="nx">match</span><span class="p">.</span><span class="nx">actions</span><span class="p">;</span> <span class="c1">//-&gt; [function() { console.log('Hello, world'); }]</span>
 <span class="nx">match</span><span class="p">.</span><span class="nx">params</span><span class="p">;</span>  <span class="c1">//-&gt; {}</span>
 </pre></div>
 
-<p>You can provide multiple actions.</p>
+<p>You can provide <code>n</code> actions when mapping a route.</p>
 
-<div class="highlight"><pre><span class="nx">way</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="s1">'/hello/world'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="cm">/* 1 */</span><span class="p">},</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="cm">/* 2 */</span><span class="p">});</span>
+<div class="highlight"><pre><span class="nx">way</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="s1">'/hello/world'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="cm">/* 1 */</span><span class="p">},</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="cm">/* 2 */</span><span class="p">},</span> <span class="p">...);</span>
 </pre></div>
 
-<p>That way you have control over the flow and do things like if the first action do not return true, it won't call the next one, or pass the returning value from the current action to the next one, or anything else that suits you. I told you it was flexible. :)</p>
+<p>Once you have a match, WayJS get out of the way. What to do with the action and parameters is totally up to you.</p>
 
-<p>WayJS works in both browser and Node.</p>
+<p>A common approach is to iterate over the actions, passing the parameters, and if one of them return false, you break the chain:</p>
+
+<div class="highlight"><pre><span class="k">for</span><span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">match</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">t</span><span class="o">--</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="nx">match</span><span class="p">.</span><span class="nx">actions</span><span class="p">[</span><span class="nx">i</span><span class="p">](</span><span class="nx">match</span><span class="p">.</span><span class="nx">params</span><span class="p">)</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+</pre></div>
+
+<p>But that's just a simple suggestion. You can do whatever you need.</p>
 
 <h2>Pattern syntax:</h2>
 
 <h3>Named parameters</h3>
 
-<p>Capture anything except forward slashes and save in <code>way.params</code> with given name.</p>
+<p>Capture anything except forward slashes and save in <code>params</code> with given name.</p>
 
-<pre><code>way.map('/log/:message', function() {
-  console.log(way.params.message);
+<pre><code>way.map('/log/:message', function(params) {
+  console.log(params.message);
 });
 </code></pre>
 
@@ -101,18 +131,26 @@
 
 <h3>Splats</h3>
 
-<p>Capture everything, including slashes and save in <code>way.params.splat</code>. You can include multiple splats, returning an array.</p>
+<p>Capture everything, including slashes and save in <code>params.splat</code>. You can include multiple splats, returning an array.</p>
 
-<pre><code>way.map('/goto/*', function() {
-  console.log('Goto: ', way.params.splat[0]);
+<pre><code>way.map('/goto/*', function(params) {
+  console.log('Goto: ', params.splat[0]);
 });
 </code></pre>
 
-<p>All the special syntaxes above can be combined to create powerful routing patterns.</p>
+<p>All the special syntaxes above can be combined to create powerful matching patterns.</p>
 
 <h2>Changelog:</h2>
 
-<h3>v0.3.4 2012-09-06</h3>
+<h3>v0.4.0 2013-03-13</h3>
+
+<ul>
+<li>Now Way constructor is properly exposed instead of an instance</li>
+<li>Moved <code>routes</code> out of the constructor to the prototype</li>
+<li>Fixed docs typos and outdated information</li>
+<li>Updated tests accordingly</li>
+<li>Dropped Makefile and in favor of npm scripts</li>
+</ul><h3>v0.3.4 2012-09-06</h3>
 
 <ul>
 <li>Fixed bug when casting #map arguments as array</li>
