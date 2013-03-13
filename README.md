@@ -2,23 +2,48 @@
 
 Lightweight and flexible URL pattern matching in JavaScript.
 
-## Tests:
+## Test:
 
 You'll need [mocha](https://github.com/visionmedia/mocha) to run the tests.
 
-Run `$ npm install -g mocha`. The `-g` flag tells the NPM to install the module globally so mocha's binaries goes in your `/usr/bin` directory.
+If you already have `mocha` installed globally you can simply run `$ mocha`.
 
-Then run `$ mocha`.
+If not, you can install the dependencies with `$ npm install` and then run `$ npm test`. No need to install `mocha` with `-g` or anything.
 
 ## Minify:
 
 You'll need [uglify-js](https://github.com/mishoo/UglifyJS) to minify the script.
 
-Install it with `$ npm install -g uglify-js`, then run `$ make`.
+Install the dependencies with `$ npm install` and then run `$ npm run minify`.
 
 ## Usage:
 
-Register a new route:
+First thing is to create a new instance.
+
+In browser:
+
+```javascript
+var way = new Way();
+```
+
+With AMD/require.js:
+
+```javascript
+require('way', function(Way) {
+  var way = new Way();
+});
+```
+
+Or with Node:
+
+```javascript
+var Way, way;
+
+Way = require('way');
+way = new Way();
+```
+
+Now, to register a new route:
 
 ```javascript
 way.map('/hello/world', function() {
@@ -32,33 +57,42 @@ Then match some path against route table:
 var match = way.match('/hello/world');
 ```
 
-This will return the first route to match or `undefined` if none.
-
-The route object has the collection of actions and eventually parsed parameters.
+This will return an `object` or `undefined` if no route matches. This object has the collection of actions and parameters.
 
 ```javascript
 match.actions; //-> [function() { console.log('Hello, world'); }]
 match.params;  //-> {}
 ```
 
-You can provide multiple actions.
+You can provide `n` actions when mapping a route.
 
 ```javascript
-way.map('/hello/world', function() {/* 1 */}, function() {/* 2 */});
+way.map('/hello/world', function() {/* 1 */}, function() {/* 2 */}, ...);
 ```
 
-That way you have control over the flow and do things like if the first action do not return true, it won't call the next one, or pass the returning value from the current action to the next one, or anything else that suits you. I told you it was flexible. :)
+Once you have a match, WayJS get out of the way. What to do with the action and parameters is totally up to you.
 
-WayJS works in both browser and Node.
+A common approach is to iterate over the actions, passing the parameters, and if one of them return false, you break the chain:
+
+```javascript
+for(i = 0, t = match.actions.length; t--; i++) {
+  if(match.actions[i](match.params) === false) {
+    break;
+  }
+}
+
+```
+
+But that's just a simple suggestion. You can do whatever you need.
 
 ## Pattern syntax:
 
 ### Named parameters
 
-Capture anything except forward slashes and save in `way.params` with given name.
+Capture anything except forward slashes and save in `params` with given name.
 
-    way.map('/log/:message', function() {
-      console.log(way.params.message);
+    way.map('/log/:message', function(params) {
+      console.log(params.message);
     });
 
 ### Optional groups
@@ -71,15 +105,23 @@ Matches with or without the snippet inside the parenthesis.
 
 ### Splats
 
-Capture everything, including slashes and save in `way.params.splat`. You can include multiple splats, returning an array.
+Capture everything, including slashes and save in `params.splat`. You can include multiple splats, returning an array.
 
-    way.map('/goto/*', function() {
-      console.log('Goto: ', way.params.splat[0]);
+    way.map('/goto/*', function(params) {
+      console.log('Goto: ', params.splat[0]);
     });
 
-All the special syntaxes above can be combined to create powerful routing patterns.
+All the special syntaxes above can be combined to create powerful matching patterns.
 
 ## Changelog:
+
+### v0.4.0 2013-03-13
+
+- Now Way constructor is properly exposed instead of an instance
+- Moved `routes` out of the constructor to the prototype
+- Fixed docs typos and outdated information
+- Updated tests accordingly
+- Dropped Makefile and in favor of npm scripts
 
 ### v0.3.4 2012-09-06
 

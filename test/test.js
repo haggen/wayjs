@@ -1,7 +1,9 @@
-var routes, tests, assert, way;
+var routes, tests, assert, Way, way;
 
 assert = require('assert');
-way = require('../way.js');
+Way = require('../way');
+
+way = new Way();
 
 routes = [
   {

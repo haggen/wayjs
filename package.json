@@ -1,12 +1,16 @@
 {
   "name": "wayjs",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "homepage": "https://github.com/haggen/wayjs",
-  "description": "Light and flexible URL routing in JavaScript",
-  "keywords": ["url", "route", "routing"],
+  "description": "Light and flexible URL pattern matching in JavaScript",
+  "keywords": ["url", "route", "routing", "pattern match"],
   "author": "Arthur Corenzan <arthur@corenzan.com>",
   "repository": { "type": "git", "url": "git://github.com/haggen/wayjs.git" },
   "main": "./way.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha",
+    "minify": "head -n 6 way.js > way.min.js; ./node_modules/uglify-js/bin/uglifyjs --no-copyright way.js >> way.min.js"
+  },
   "engines": {
     "node": ">= 0.8.3",
     "npm": ">= 1.1.4"
